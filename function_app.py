@@ -43,6 +43,7 @@ def studentAPI(req: func.HttpRequest) -> func.HttpResponse:
 
         # return the JSON 
         return func.HttpResponse(json.dumps(student_JSON), status_code=200)
+    
     # handling the PSOT method
     elif req.method == 'POST':
         # getting the req body
@@ -58,7 +59,32 @@ def studentAPI(req: func.HttpRequest) -> func.HttpResponse:
         # try persisting the new student to the db
         try: 
             db_collection.insert_one(new_student)
-            return func.HttpResponse("New student added successfuly!")
+            return func.HttpResponse("New student added successfuly!", status_code=200)
         except:
-            return func.HttpResponse("Error persisting new student!!")
+            return func.HttpResponse("Error persisting new student!!", status_code=400)
     
+    # handling the PUT method
+    elif req.method == 'PUT':
+        # getting the id as a param from URL
+        id = req.params.get('id')
+
+        # getting the req body
+        request_body = req.get_json()
+
+        # get the student with the id from the db collection
+        student = db_collection.find_one({'id': int(id)})
+
+        # updating the student with the new data
+        updated_student = {
+            '$set': {
+                'name': request_body.get('name'),
+                'grade': request_body.get('grade')
+            }
+        }
+
+        # try to update the record
+        try: 
+            db_collection.update_one(student, updated_student)
+            return func.HttpResponse('Student updated successfuly: {}'.format(json.dumps(updated_student)))
+        except: 
+            return func.HttpResponse("Error updating the student!!", status_code=400)
