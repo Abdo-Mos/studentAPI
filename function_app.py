@@ -29,15 +29,16 @@ def studentAPI(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
     if req.method == 'GET':
-        stu = db_collection.find_one({'id': 1})
-        stu_JSON = {
-            'id':stu['id'],
-            'name': stu['name'],
-            'grade': stu['grade']
-        }
-        return func.HttpResponse(
-            json.dumps(stu_JSON)
-        )
-        return func.HttpResponse("This is a GET method, and it is working fine")
-    elif req.method == 'POST':
-        return func.HttpResponse("Now this is a POST and you should do it from POSTMAN!!!")
+        # getting the id as a param from URL
+        id = req.params.get('id')
+        # get the student with the id from the db collection
+        student = db_collection.find_one({'id': int(id)})
+        # clean the db response and craete a new JSON
+        student_JSON = {
+            'id':student['id'],
+            'name': student['name'],
+            'grade': student['grade']
+        } 
+
+        # return the JSON 
+        return func.HttpResponse(json.dumps(student_JSON), status_code=200)
