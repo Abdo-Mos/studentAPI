@@ -28,6 +28,7 @@ Ref code: return func.HttpResponse(
 def studentAPI(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
+    # handling the GET method
     if req.method == 'GET':
         # getting the id as a param from URL
         id = req.params.get('id')
@@ -42,3 +43,22 @@ def studentAPI(req: func.HttpRequest) -> func.HttpResponse:
 
         # return the JSON 
         return func.HttpResponse(json.dumps(student_JSON), status_code=200)
+    # handling the PSOT method
+    elif req.method == 'POST':
+        # getting the req body
+        request_body = req.get_json()
+        
+        # creating a new student obj from the body
+        new_student = {
+            'id': request_body.get('id'),
+            'name': request_body.get('name'),
+            'grade': request_body.get('grade')
+        }
+
+        # try persisting the new student to the db
+        try: 
+            db_collection.insert_one(new_student)
+            return func.HttpResponse("New student added successfuly!")
+        except:
+            return func.HttpResponse("Error persisting new student!!")
+    
