@@ -88,3 +88,18 @@ def studentAPI(req: func.HttpRequest) -> func.HttpResponse:
             return func.HttpResponse('Student updated successfuly: {}'.format(json.dumps(updated_student)))
         except: 
             return func.HttpResponse("Error updating the student!!", status_code=400)
+    
+    # handling the DELETE method
+    elif req.method == 'DELETE':
+        # getting the id as a param from URL
+        id = req.params.get('id')
+
+        # get the student with the id from the db collection
+        student = db_collection.find_one({'id': int(id)})
+
+        # try to delete the specified student
+        try: 
+            db_collection.delete_one(student)
+            return func.HttpResponse("Student deleted successfuly!", status_code=200)
+        except: 
+            return func.HttpResponse("Error deleting student!!", status_code=400)
